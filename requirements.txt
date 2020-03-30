@@ -1,3 +1,4 @@
+scikit-learn
 pandas
 matplotlib
 decorator==4.4.2
