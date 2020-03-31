@@ -15,7 +15,7 @@ def cosine_calc(a, b):
 
 
 def get_embedding(x):
-    return embeddings_dict[str(x)]
+    return embeddings_dict[x]
 
 
 def caching(a, b):
@@ -28,9 +28,21 @@ def caching(a, b):
     return cos_sim
 
 
-entities2id = pd.read_csv("../myTests/"+dataset+"_PROCESSED/entity2id.txt", sep="\t", header=None)
-test2id = pd.read_csv("../myTests/"+dataset+"_PROCESSED/test_edgelist.txt", sep=" ", header=None)
+# entities2id = pd.read_csv("../myTests/"+dataset+"_PROCESSED/entity2id.txt", sep="\t", header=None)
+# test2id = pd.read_csv("../myTests/"+dataset+"_PROCESSED/test_edgelist.txt", sep=" ", header=None)
 embeddings_dict = {}
+entities2id = list()
+test2id = list()
+
+with open("../myTests/"+dataset+"_PROCESSED/test_edgelist.txt", 'r') as f1:
+    for line in f1:
+        values = line.split(" ")
+        test2id.append(values)
+
+with open("../myTests/"+dataset+"_PROCESSED/entity2id.txt", 'r') as f0:
+    for line in f0:
+        values = line.split("\t")
+        entities2id.append(values)
 
 with open("../experiment/embeddings/"+dataset+"_EMBEDDINGS/whole.emd", 'r') as f:
     for line in f:
@@ -47,31 +59,34 @@ cache_keys = cache.keys()
 MR = 0
 HITS = 0
 length = 0
-for index0, row in test2id.iterrows():
-    start_time = time.time()
+for row in test2id:
+
     print(row[0])
+
+    start_time = time.time()
+
     sim_list = list()
-    temp = caching(row[0], row[1])
+    temp = caching(row[0].rstrip(), row[1].rstrip())
     if temp == -1:
-        correct_sim = cosine_calc(get_embedding(row[0]),
-                                  get_embedding(row[1]))
-        cache[(row[0], row[1])] = correct_sim
+        correct_sim = cosine_calc(get_embedding(row[0].rstrip()),
+                                  get_embedding(row[1].rstrip()))
+        cache[(row[0].rstrip(), row[1].rstrip())] = correct_sim
         cache_keys = cache.keys()
     else:
         correct_sim = temp
 
-    for index1, row1 in entities2id.iterrows():
+    for row1 in entities2id:
 
-        if str(row1[1]) in emb_dict_keys:
+        if row1[1].rstrip() in emb_dict_keys:
 
-            temp = caching(row[0], row1[1])
+            temp = caching(row[0].rstrip(), row1[1].rstrip())
             if temp != -1:
                 sim_list.append(temp)
             else:
-                similarity = cosine_calc(get_embedding(row[0]),
-                                         get_embedding(row1[1]))
+                similarity = cosine_calc(get_embedding(row[0].rstrip()),
+                                         get_embedding(row1[1].rstrip()))
                 sim_list.append(similarity)
-                cache[(row[0], row1[1])] = similarity
+                cache[(row[0].rstrip(), row1[1].rstrip())] = similarity
                 cache_keys = cache.keys()
 
     sim_list.sort(reverse=True)
