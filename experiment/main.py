@@ -42,7 +42,7 @@ with open("../myTests/" + dataset + "_PROCESSED/entity2id.txt", 'r') as f0:
         values = line.split("\t")
         entities2id.append(values)
 
-with open("../experiment/embeddings/" + dataset + "_EMBEDDINGS/whole.emd", 'r') as f:
+with open("../experiment/embeddings/" + method + "/" + dataset + "_EMBEDDINGS/whole.emd", 'r') as f:
     for line in f:
         values = line.split()
         word = values[0]
